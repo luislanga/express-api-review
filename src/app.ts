@@ -1,11 +1,10 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import productsRouter from "./routes/products.routes";
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).send({ hello: "Hello World" });
-});
+app.get("/", productsRouter);
 
 export default app;

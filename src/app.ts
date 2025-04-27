@@ -1,10 +1,13 @@
 import express from "express";
 import productsRouter from "./routes/products.routes";
+import db from "./db";
 
 const app = express();
 
+db();
+
 app.use(express.json());
 
-app.get("/", productsRouter);
+app.use("/", productsRouter);
 
 export default app;

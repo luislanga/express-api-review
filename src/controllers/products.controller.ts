@@ -1,9 +1,15 @@
 import { Request, Response } from "express";
-import Product from "../models/Product";
+import {
+  createProductRepository,
+  deleteProductRepository,
+  getProductsRepository,
+  updateProductRepository,
+} from "../repositories/product-repository";
+import { NotFoundError } from "../errors/NotFoundError";
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const products = await Product.find();
+    const products = await getProductsRepository();
 
     res.status(200).json(products);
   } catch (error) {
@@ -15,17 +21,14 @@ export const createProduct = async (req: Request, res: Response) => {
   try {
     const { name, price, tags } = req.body;
 
-    const product = new Product({
+    const product = createProductRepository({
       name,
       price,
       tags,
     });
 
-    await product.save();
-
     res.status(201).json(product);
   } catch (error) {
-    console.error("Error creating product:", error);
     res.status(500).json({ message: "Error creating product", error });
   }
 };
@@ -35,17 +38,13 @@ export const updateProduct = async (req: Request, res: Response) => {
   const updates = req.body;
 
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
-      new: true,
-    });
-
-    if (!updatedProduct) {
+    const updatedProduct = await updateProductRepository(id, updates);
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
       res.status(404).json({ message: "Product not found" });
       return;
     }
-
-    res.status(200).json(updatedProduct);
-  } catch (error) {
     res.status(500).json({ message: "Error updating product", error });
   }
 };
@@ -53,15 +52,13 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
+    const deletedProduct = await deleteProductRepository(id);
+    res.status(200).json(deletedProduct);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
       res.status(404).json({ message: "Product not found" });
       return;
     }
-
-    res.status(200).json(deletedProduct);
-  } catch (error) {
     res.status(500).json({ message: "Error deleting product", error });
   }
 };

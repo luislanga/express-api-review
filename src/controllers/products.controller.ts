@@ -1,17 +1,24 @@
 import { Request, Response } from "express";
 import Product from "../models/Product";
 
-export const getProducts = (req: Request, res: Response) => {
-  res.status(200).send({ products: ["product 1", "product 2", "product 3"] });
+export const getProducts = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find();
+
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching products", error });
+  }
 };
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, price } = req.body;
+    const { name, price, tags } = req.body;
 
     const product = new Product({
       name,
       price,
+      tags
     });
 
     await product.save();

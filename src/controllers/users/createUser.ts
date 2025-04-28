@@ -1,14 +1,29 @@
 import { Request, Response } from "express";
 import { hashPassword } from "../../utils/hash";
 import User from "../../models/User";
+import { createUserSchema } from "../../schemas/user-schemas";
+import { badRequest } from "../../utils/response";
 
 export const createUser = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  try {
+    const { error } = createUserSchema.validate(req.body, {
+      abortEarly: false,
+    });
 
-  const hashedPassword = await hashPassword(password);
+    if (error) {
+      badRequest(res, error.details)
+      return;
+    }
 
-  const user = new User({ username, hashedPassword });
-  await user.save()
+    const { username, password } = req.body;
 
-  res.status(201).json(user)
+    const hashedPassword = await hashPassword(password);
+
+    const user = new User({ username, hashedPassword });
+    await user.save();
+
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create user.", error });
+  }
 };

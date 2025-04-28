@@ -1,8 +1,18 @@
 import { Request, Response } from "express";
 import { createProductRepository } from "../../repositories/product-repository";
+import { createProductSchema } from "../../schemas/product-schemas";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
+    const { error } = createProductSchema.validate(req.body);
+
+    if (error) {
+      res
+        .status(400)
+        .json({ message: "Invalid request.", details: error.details });
+      return;
+    }
+
     const { name, price, tags } = req.body;
 
     const product = await createProductRepository({

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { compareHashedPassword } from "../../utils/hash";
-import User from "../../models/User";
 import { getUserByUsername } from "../../repositories/user-repository";
 
 export const authenticateUser = async (req: Request, res: Response) => {

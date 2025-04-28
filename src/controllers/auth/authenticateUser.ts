@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { compareHashedPassword } from "../../utils/hash";
 import { getUserByUsername } from "../../repositories/user-repository";
+import { generateAccessToken } from "../../utils/jwt";
 
 export const authenticateUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -22,5 +23,12 @@ export const authenticateUser = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ username: user.username });
+  const tokenPayload = {
+    id: user._id,
+    username: user.username,
+  };
+
+  const accessToken = generateAccessToken(tokenPayload);
+
+  res.status(200).json({ accessToken });
 };

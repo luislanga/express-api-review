@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { updateProductRepository } from "../../repositories/product-repository";
 import { NotFoundError } from "../../errors/NotFoundError";
 import { updateProductSchema } from "../../schemas/product-schemas";
+import { badRequest } from "../../utils/response";
 
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -11,9 +12,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     const { error } = updateProductSchema.validate(req.body);
 
     if (error) {
-      res
-        .status(400)
-        .json({ message: "Invalid request.", details: error.details });
+      badRequest(res, error.details);
       return;
     }
 
